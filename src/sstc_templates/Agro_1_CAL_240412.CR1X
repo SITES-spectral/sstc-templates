@@ -1,0 +1,76 @@
+'CR1000X Series Datalogger
+
+'This logger program is for calibrating the sensor pairs at Alnarp.
+'No need to change the wire connection. Send this logger program to
+'the logger and start collecting data for calibration.
+
+'Make sure to re-upload the original logger program after calibration
+'process is completed.
+
+'If you have questions, please reach out to:
+'Email: shangharsha.thapa@nateko.lu.se
+
+'Declare Variables and Units
+Public BattV
+Public Up_RED              'incoming 53076 650 CH1 
+Public Up_NIR              'incoming 53076 804 CH2 
+
+Public Dw_RED_1            'outgoing 53078 650 CH1 
+Public Dw_NIR_1            'outgoing 53078 804 CH2 
+
+Public Dw_RED_2            'outgoing 53079 650 CH1 
+Public Dw_NIR_2            'outgoing 53079 804 CH2 
+
+Units BattV = Volts
+
+Units Up_RED = mV
+Units Up_NIR = mV
+
+Units Dw_RED_1 = mV
+Units Dw_NIR_1 = mV
+Units Dw_RED_2 = mV
+Units Dw_NIR_2 = mV
+
+'Define Data Tables
+DataTable(NDVI_CAL,True,-1)
+	DataInterval(0,2,sec,10)
+	Minimum(1,BattV,FP2,False,False)
+	Average(1,Up_RED,FP2,False)
+	Average(1,Up_NIR,FP2,False)
+
+	Average(1,Dw_RED_1,FP2,False)
+	Average(1,Dw_NIR_1,FP2,False)
+	Average(1,Dw_RED_2,FP2,False)
+	Average(1,Dw_NIR_2,FP2,False)
+
+EndTable
+
+'Main Program
+BeginProg
+	'Main Scan
+	Scan(2,Sec,1,0)
+		'Default Datalogger Battery Voltage measurement 'BattV'
+		Battery(BattV)
+		
+		'The Skye sensor with inbuilt op-amp need 5-15V power up for at least 0.5 Sec
+    Delay(0,500,mSec)			
+  	'Generic Single-Ended Voltage measurements 'Up_RED'
+		VoltSe(Up_RED,1,mV5000,1,True,0,_50Hz,1,0)
+		'Generic Single-Ended Voltage measurements 'Up_NIR'
+		VoltSe(Up_NIR,1,mV5000,2,True,0,_50Hz,1,0)
+		
+		'Generic Single-Ended Voltage measurements 'Dw_RED_1'
+		VoltSe(Dw_RED_1,1,mV5000,3,True,0,_50Hz,1,0)
+		'Generic Single-Ended Voltage measurements 'Dw_NIR_1'
+		VoltSe(Dw_NIR_1,1,mV5000,4,True,0,_50Hz,1,0)
+		
+    'Generic Single-Ended Voltage measurements 'Dw_RED_2'
+		VoltSe(Dw_RED_2,1,mV5000,5,True,0,_50Hz,1,0)
+		'Generic Single-Ended Voltage measurements 'Dw_NIR_2'
+		VoltSe(Dw_NIR_2,1,mV5000,6,True,0,_50Hz,1,0)
+		
+		'Call Data Tables and Store Data
+		CallTable NDVI_CAL
+	NextScan
+EndProg
+
